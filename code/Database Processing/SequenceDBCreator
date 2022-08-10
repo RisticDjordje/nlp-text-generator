@@ -1,0 +1,33 @@
+import os
+import pandas as pd
+import numpy as np
+
+fileDir = os.path.dirname(os.path.realpath('__file__'))
+text_file = open(fileDir + '\db_processed\\text_processed.txt', "r")
+data = text_file.read()
+text_file.close()
+
+
+# TOKENIZATION
+tokens_as_words = data.split(' ')
+print("Split the text into word Tokens. ")
+
+
+# CREATE A SEQUENCE DATASET
+df = pd.DataFrame(columns=['text', 'target'])
+
+
+def create_dataset(df, tokens_vectors, sequence_length):
+    tokens_length = len(tokens_vectors)
+    for i in range(tokens_length - sequence_length):
+        df.loc[len(df.index)] = ' '.join(tokens_vectors[i:i+sequence_length]), tokens_vectors[i+sequence_length]
+
+
+sequence_length = 4
+print("Creating sequences and loading them into a DF.")
+create_dataset(df, tokens_as_words, sequence_length)
+
+# SAVE THE SEQUENCES INTO CSV
+df.to_csv(fileDir + '\db_processed\db_sequences_words_short.csv')
+print("DataFrame saved.")
+

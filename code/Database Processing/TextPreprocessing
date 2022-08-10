@@ -1,0 +1,67 @@
+import re
+import inflect
+import os
+
+
+def convert_text_to_lower(text):
+    return text.lower()
+
+
+def convert_numbers_to_text(text):
+    p = inflect.engine()
+    # split string into list of words
+    temp_str = text.split()
+    # initialise empty list
+    new_string = []
+
+    for word in temp_str:
+        # if word is a digit, convert the digit
+        # to numbers and append into the new_string list
+        if word.isdigit():
+            temp = p.number_to_words(word)
+            new_string.append(temp)
+
+        # append the word as it is
+        else:
+            new_string.append(word)
+
+    # join the words of new_string to form a string
+    temp_str = ' '.join(new_string)
+    return temp_str
+
+
+def remove_pages(text):
+    return re.sub("page \|.*?j.k. rowling", "", text)
+
+
+def remove_punct(text):
+    return re.sub(r'[^\w\s]', '', text)
+
+
+def remove_double_spaces_tabs_newlines(text):
+    new_text = " ".join(text.split())
+    return new_text
+
+all_books = ""
+
+for i in range(1,8):
+    # open file
+    fileDir = os.path.dirname(os.path.realpath('__file__'))
+    text_file = open(fileDir + f'\db_original\Book{i}.txt', "r", encoding="utf8")
+    data_string = text_file.read()
+    text_file.close()
+
+    # applying preprocessing functions
+    data_numbers_to_text = convert_numbers_to_text(data_string)
+    data_lower_text = convert_text_to_lower(data_numbers_to_text)
+    data_no_page = remove_pages(data_lower_text)
+    data_no_punct = remove_punct(data_no_page)
+    data_no_doublewhitespaces = remove_double_spaces_tabs_newlines(data_no_punct)
+    all_books += data_no_doublewhitespaces
+    print("Book", i, "preprocessed")
+
+# writing the processed data into a new text file
+processed_data = open(fileDir + '\db_processed\\allbooks__processed.txt', 'w')
+processed_data.write(data_no_doublewhitespaces)
+processed_data.close()
+
